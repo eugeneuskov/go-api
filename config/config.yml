@@ -1,1 +1,9 @@
-port: "8000"
+app_port: "8000"
+db:
+  postgres:
+    psql_host: "127.0.0.1"
+    psql_port: "5432"
+    psql_user: "-"
+    psql_password: "-"
+    psql_db_name: "-"
+    psql_ssl_mode: "disable"
