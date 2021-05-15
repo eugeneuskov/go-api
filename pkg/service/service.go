@@ -1,9 +1,12 @@
 package service
 
-import "go-api/pkg/repository"
+import (
+	"go-api/models"
+	"go-api/pkg/repository"
+)
 
 type Authorization interface {
-
+	CreateUser(user *models.User) (int, error)
 }
 
 type TodoList interface {
@@ -21,5 +24,7 @@ type Service struct {
 }
 
 func NewService(repositories *repository.Repository) *Service {
-	return &Service{}
+	return &Service{
+		Authorization: NewAuthService(repositories.Authorization),
+	}
 }
