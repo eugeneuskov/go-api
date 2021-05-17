@@ -80,9 +80,9 @@ func (r *TodoListPostgres) GetById(userId, listId int) (models.TodoList, error) 
 		&list,
 		fmt.Sprintf(
 			`select tl.id, tl.title, tl.description
-					from %s tl 
-					inner join %s ul on tl.id = ul.list_id 
-					where ul.user_id=$1 and ul.list_id=$2`,
+				from %s tl 
+				inner join %s ul on tl.id = ul.list_id 
+				where ul.user_id=$1 and ul.list_id=$2`,
 			todoListsTable,
 			usersListsTable,
 		),
@@ -91,4 +91,20 @@ func (r *TodoListPostgres) GetById(userId, listId int) (models.TodoList, error) 
 	)
 
 	return list, err
+}
+
+func (r *TodoListPostgres) DeleteById(userId, listId int) error {
+	_, err := r.db.Exec(
+		fmt.Sprintf(
+			`delete from %s tl
+				using %s ul
+				where tl.id = ul.list_id and ul.user_id=$1 and ul.list_id=$2`,
+			todoListsTable,
+			usersListsTable,
+		),
+		userId,
+		listId,
+	)
+
+	return err
 }

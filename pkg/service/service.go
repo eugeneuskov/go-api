@@ -15,6 +15,7 @@ type TodoList interface {
 	Create(userId int, list *models.TodoList) (int, error)
 	GetAllByUser(userId int) ([]models.TodoList, error)
 	GetById(userId, listId int) (models.TodoList, error)
+	DeleteById(userId, listId int) error
 }
 
 type TodoItem interface {
