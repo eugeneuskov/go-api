@@ -63,7 +63,7 @@ func (r *TodoListPostgres) GetAllByUser(userId int) ([]models.TodoList, error) {
 	err := r.db.Select(
 		&todoLists,
 		fmt.Sprintf(
-			"select tl.* from %s tl inner join %s ul on tl.id = ul.list_id where ul.user_id = $1",
+			"select tl.* from %s tl inner join %s ul on tl.id = ul.list_id where ul.user_id=$1",
 			todoListsTable,
 			usersListsTable,
 		),
@@ -71,4 +71,24 @@ func (r *TodoListPostgres) GetAllByUser(userId int) ([]models.TodoList, error) {
 	)
 
 	return todoLists, err
+}
+
+func (r *TodoListPostgres) GetById(userId, listId int) (models.TodoList, error) {
+	var list models.TodoList
+
+	err := r.db.Get(
+		&list,
+		fmt.Sprintf(
+			`select tl.id, tl.title, tl.description
+					from %s tl 
+					inner join %s ul on tl.id = ul.list_id 
+					where ul.user_id=$1 and ul.list_id=$2`,
+			todoListsTable,
+			usersListsTable,
+		),
+		userId,
+		listId,
+	)
+
+	return list, err
 }

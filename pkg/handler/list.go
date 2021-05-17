@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-api/models"
 	"net/http"
+	"strconv"
 )
 
 func (h *Handler) createList(c *gin.Context) {
@@ -53,7 +54,27 @@ func (h *Handler) getAllLists(c *gin.Context) {
 }
 
 func (h *Handler) getListById(c *gin.Context) {
+	userId, err := getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 
+	listId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	list, err := h.services.TodoList.GetById(userId, listId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"list": list,
+	})
 }
 
 func (h *Handler) updateList(c *gin.Context) {

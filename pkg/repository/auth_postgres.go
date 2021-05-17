@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"go-api/models"
-	"log"
 )
 
 type AuthPostgres struct {
@@ -41,7 +40,6 @@ func (r *AuthPostgres) GetUser(username, password string) (models.User, error) {
 		username,
 		password,
 	)
-	log.Printf("user: %v\n", user)
 
 	return user, err
 }
