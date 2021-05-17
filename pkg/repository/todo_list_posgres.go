@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"go-api/models"
+	"strings"
 )
 
 type TodoListPostgres struct {
@@ -104,6 +105,41 @@ func (r *TodoListPostgres) DeleteById(userId, listId int) error {
 		),
 		userId,
 		listId,
+	)
+
+	return err
+}
+
+func (r *TodoListPostgres) Update(userId, listId int, input *models.UpdateListInput) error {
+	setValues := make([]string, 0, 2)
+	args := make([]interface{}, 0, 2)
+	argId := 1;
+
+	if input.Title != nil {
+		setValues = append(setValues, fmt.Sprintf("title=$%d", argId))
+		args = append(args, *input.Title)
+		argId++
+	}
+
+	if input.Description != nil {
+		setValues = append(setValues, fmt.Sprintf("description=$%d", argId))
+		args = append(args, *input.Description)
+		argId++
+	}
+	args = append(args, listId, userId)
+
+	_, err := r.db.Exec(
+		fmt.Sprintf(
+			`update %s tl
+			set %s from %s ul
+			where tl.id = ul.list_id and ul.list_id=$%d and ul.user_id=$%d`,
+			todoListsTable,
+			strings.Join(setValues, ", "),
+			usersListsTable,
+			argId,
+			argId + 1,
+		),
+		args...
 	)
 
 	return err
