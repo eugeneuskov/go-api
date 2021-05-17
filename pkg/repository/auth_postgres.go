@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"go-api/models"
+	"log"
 )
 
 type AuthPostgres struct {
@@ -29,4 +30,18 @@ func (r *AuthPostgres) CreateUser(user *models.User) (int, error) {
 	}
 
 	return id, nil
+}
+
+func (r *AuthPostgres) GetUser(username, password string) (models.User, error) {
+	var user models.User
+
+	err := r.db.Get(
+		&user,
+		fmt.Sprintf("select id from %s where username=$1 and password_hash=$2", usersTable),
+		username,
+		password,
+	)
+	log.Printf("user: %v\n", user)
+
+	return user, err
 }
