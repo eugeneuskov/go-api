@@ -56,3 +56,19 @@ func insertUserList(tx *sql.Tx, userId int, todoId int) error {
 
 	return err
 }
+
+func (r *TodoListPostgres) GetAllByUser(userId int) ([]models.TodoList, error) {
+	var todoLists []models.TodoList
+
+	err := r.db.Select(
+		&todoLists,
+		fmt.Sprintf(
+			"select tl.* from %s tl inner join %s ul on tl.id = ul.list_id where ul.user_id = $1",
+			todoListsTable,
+			usersListsTable,
+		),
+		userId,
+	)
+
+	return todoLists, err
+}
