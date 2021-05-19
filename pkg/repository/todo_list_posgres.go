@@ -48,7 +48,7 @@ func insertTodoList(tx *sql.Tx, list *models.TodoList) (int, error) {
 	return id, err
 }
 
-func insertUserList(tx *sql.Tx, userId int, todoId int) error {
+func insertUserList(tx *sql.Tx, userId, todoId int) error {
 	_, err := tx.Exec(
 		fmt.Sprintf("insert into %s (user_id, list_id) values ($1, $2)", usersListsTable),
 		userId,
@@ -64,7 +64,9 @@ func (r *TodoListPostgres) GetAllByUser(userId int) ([]models.TodoList, error) {
 	err := r.db.Select(
 		&todoLists,
 		fmt.Sprintf(
-			"select tl.* from %s tl inner join %s ul on tl.id = ul.list_id where ul.user_id=$1",
+			`select tl.* from %s tl 
+			inner join %s ul on tl.id = ul.list_id
+			where ul.user_id=$1`,
 			todoListsTable,
 			usersListsTable,
 		),
