@@ -27,3 +27,7 @@ func (t *TodoItemService) Create(userId, listId int, item *models.TodoItem) (int
 func (t *TodoItemService) GetAllByUserList(userId, listId int) ([]models.TodoItem, error) {
 	return t.itemRepository.GetAllByUserList(userId, listId)
 }
+
+func (t *TodoItemService) GetById(userId, listId, itemId int) (models.TodoItem, error) {
+	return t.itemRepository.GetById(userId, listId, itemId)
+}
