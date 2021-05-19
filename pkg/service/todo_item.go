@@ -31,3 +31,7 @@ func (t *TodoItemService) GetAllByUserList(userId, listId int) ([]models.TodoIte
 func (t *TodoItemService) GetById(userId, listId, itemId int) (models.TodoItem, error) {
 	return t.itemRepository.GetById(userId, listId, itemId)
 }
+
+func (t *TodoItemService) DeleteById(userId, listId, itemId int) error {
+	return t.itemRepository.DeleteById(userId, listId, itemId)
+}

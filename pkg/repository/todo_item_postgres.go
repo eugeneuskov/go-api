@@ -100,3 +100,20 @@ func (t *TodoItemPostgres) GetById(userId, listId, itemId int) (models.TodoItem,
 	return item, err
 }
 
+func (t *TodoItemPostgres) DeleteById(userId, listId, itemId int) error {
+	_, err := t.db.Exec(
+		fmt.Sprintf(
+			`delete from %s ti
+			using %s li, %s ul
+			where ti.id = li.item_id and li.list_id = ul.list_id and ul.user_id=$1 and li.list_id=$2 and ti.id=$3`,
+			todoItemsTable,
+			listItemsTable,
+			usersListsTable,
+		),
+		userId,
+		listId,
+		itemId,
+	)
+
+	return err
+}
