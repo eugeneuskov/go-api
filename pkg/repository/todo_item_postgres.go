@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"go-api/models"
+	"strings"
 )
 
 type TodoItemPostgres struct {
@@ -100,12 +101,56 @@ func (t *TodoItemPostgres) GetById(userId, listId, itemId int) (models.TodoItem,
 	return item, err
 }
 
+func (t *TodoItemPostgres) Update(userId, listId, itemId int, input *models.UpdateItemListInput) error {
+	setValues := make([]string, 0, 3)
+	args := make([]interface{}, 0, 3)
+	argId := 1
+
+	if input.Title != nil {
+		setValues = append(setValues, fmt.Sprintf("title=$%d", argId))
+		args = append(args, *input.Title)
+		argId++
+	}
+
+	if input.Description != nil {
+		setValues = append(setValues, fmt.Sprintf("description=$%d", argId))
+		args = append(args, *input.Description)
+		argId++
+	}
+
+	if input.IsDone != nil {
+		setValues = append(setValues, fmt.Sprintf("is_done=$%b", argId))
+		args = append(args, *input.IsDone)
+		argId++
+	}
+	args = append(args, userId, listId, itemId)
+
+	_, err := t.db.Exec(
+		fmt.Sprintf(
+			`update %s ti set %s from %s li, %s ul
+			where ti.id = li.item_id and li.list_id = ul.list_id
+			and ul.user_id=$%d and li.list_id=$%d and ti.id=$%d`,
+			todoItemsTable,
+			strings.Join(setValues, ", "),
+			listItemsTable,
+			usersListsTable,
+			argId,
+			argId + 1,
+			argId + 2,
+		),
+		args...
+	)
+
+	return err
+}
+
 func (t *TodoItemPostgres) DeleteById(userId, listId, itemId int) error {
 	_, err := t.db.Exec(
 		fmt.Sprintf(
 			`delete from %s ti
 			using %s li, %s ul
-			where ti.id = li.item_id and li.list_id = ul.list_id and ul.user_id=$1 and li.list_id=$2 and ti.id=$3`,
+			where ti.id = li.item_id and li.list_id = ul.list_id
+			and ul.user_id=$1 and li.list_id=$2 and ti.id=$3`,
 			todoItemsTable,
 			listItemsTable,
 			usersListsTable,
